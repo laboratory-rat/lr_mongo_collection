@@ -1,0 +1,9 @@
+name: lr_mongo_collection
+description: adapt mongo for dart arch usage
+author: Laboratory Rat <oleg.timofeev20@gmail.com>
+
+dependencies:
+  mongo_dart: "^0.3.1"
+
+dev_dependencies:
+  test: '>=0.12.0 <0.13.0'
