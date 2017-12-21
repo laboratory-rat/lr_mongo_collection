@@ -8,8 +8,7 @@ import 'package:bson/bson.dart';
 class EntityBase implements IEntityBase{
     EntityBase();
 
-    ObjectId id;
-    String get clearId => id == null ? "" : id.id.toString();
+    String id;
 
     DateTime createdTime = new DateTime.now().toUtc();
     DateTime updatedTime;
@@ -35,7 +34,7 @@ class EntityBase implements IEntityBase{
     Map toMap() {
         Map m = new Map();
 
-        m['_id'] = id;
+        m['id'] = id;
         m['createdTime'] = createdTime;
         m['updatedTime'] = updatedTime;
 
@@ -44,7 +43,7 @@ class EntityBase implements IEntityBase{
     
     @override
     void fromMap(Map m){
-        id = m['_id'];
+        id = m['id'];
         createdTime = m['createdTime'];
         updatedTime = m['updatedTime'];
     }

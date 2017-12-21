@@ -4,9 +4,10 @@ import '../interface/i_entity_base.dart';
 import 'dart:async';
 
 import 'package:mongo_dart/mongo_dart.dart';
-
+import 'package:uuid/uuid.dart';
 
 class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
+  Uuid uuid = new Uuid();
   Db db;
   DbCollection collection;
 
@@ -14,7 +15,6 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
     db = new Db(connection);
   }
 
-  @override
   Future<DbCollection> openConnection() async {
     if(db.state == State.OPEN && collection != null) return collection;
 
@@ -28,16 +28,14 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
     return collection;
   }
 
-  @override
   Future closeConnection() async {
     await db.close();
   }
 
   // insert
 
-  @override
   Future<E> insert(E target) async {
-    target.id = new ObjectId();
+    target.id = uuid.v4();
 
     await openConnection();
     await collection.insert(target.toMap());
@@ -46,11 +44,10 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
     return target;
   }
 
-  @override
   Future<List<E>> insertAll(List<E> targets) async {
     var list = new List<Map>();
     targets.forEach((x) {
-      x.id = new ObjectId();
+      x.id = uuid.v4();
       list.add(x.toMap());
     });
 
@@ -63,15 +60,13 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
 
   // find
 
-  @override
   Future<E> findById(String id) async {
     await openConnection();
-    var entity = await collection.findOne(where.id(ObjectId.parse(id)));
+    var entity = await collection.findOne(where.eq('id', id));
     await closeConnection();
     return parse(entity);
   }
 
-  @override
   Future<List<E>> findWhere(SelectorBuilder selector) async {
     await openConnection();
     var response = await collection.find(selector).toList();
@@ -80,7 +75,6 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
     return response.map((x) => parse(x)).toList();
   }
 
-  @override
   Future<List<E>> findAll() async {
     await openConnection();
     var response = await collection.find().toList();
@@ -91,7 +85,6 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
 
   // count
 
-  @override
   Future<int> count() async {
     await openConnection();
     var count = await collection.count();
@@ -100,7 +93,6 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
     return count;
   }
 
-  @override
   Future<int> countWhere(SelectorBuilder selector) async {
     await openConnection();
     var count = await collection.count(selector);
@@ -110,7 +102,6 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
   }
 
   // update
-  @override
   Future update(E entity) async {
     await openConnection();
     await collection.save(entity.toMap());
@@ -118,21 +109,18 @@ class CollectionBase<E extends IEntityBase> implements ICollectionBase<E> {
   }
 
   // delete
-  @override
   Future deleteById(String id) async {
     await openConnection();
-    await collection.remove(where.id(ObjectId.parse(id)));
+    await collection.remove(where.eq('id', id));
     await closeConnection();
   }
 
-  @override
   Future deleteWhere(SelectorBuilder selector) async {
     await openConnection();
     await collection.remove(selector);
     await closeConnection();
   }
 
-  @override
   E parse(Map map) {
     var entity = HelperEntityActivator.activate(E);
     entity.fromMap(map);
