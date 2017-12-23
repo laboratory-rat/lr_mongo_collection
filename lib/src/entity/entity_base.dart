@@ -2,8 +2,6 @@ import '../annotation/collection_options.dart';
 import '../interface/i_entity_base.dart';
 import 'dart:mirrors';
 
-import 'package:bson/bson.dart';
-
 @CollectionOptions('null')
 class EntityBase implements IEntityBase{
     EntityBase();
